@@ -1,66 +1,70 @@
- pkgs ? import <nixpkgs> {}; {
+pkgs ? import <nixpkgs> {};
 
-let
-  customPython = pkgs.python311.withPackages (ps: with ps; [
-    requests
-    pandas
-    numpy
-    matplotlib
-  ]);
-in
 {
-  channel = "nixos-24.11";
+  # Custom Python environment with required packages
+  let
+    customPython = pkgs.python311.withPackages (ps: with ps; [
+      requests
+      pandas
+      numpy
+      matplotlib
+    ]);
 
-  packages = with pkgs; [
-    customPython
-    nodejs_20
-    terraform
-    awscli2
-    awsume
-    ansible
-    docker
-    git
-    jq
-    ripgrep
-    htop
-    tree
-    tmux
-    fzf
-    direnv
-  ];
+  # NixOS channel for package selection
+  in
+  {
+    channel = "nixos-24.11";
 
-  # Sets environment variables in the workspace
-  env = {
-    AWS_CONFIGURE_SSO_DEFAULT_SSO_START_URL = "https://intelerad.awsapps.com/start";
-    AWS_CONFIGURE_SSO_DEFAULT_SSO_REGION = "us-east-1";
-    CONFIG_HOME = "/users/acarter";
-    AWS_SDK_LOAD_CONFIG = "1";
-    XDG_CONFIG_HOME = "$HOME/.config";
-    XDG_CACHE_HOME = "$HOME/.cache";
-    XDG_STATE_HOME = "$HOME/.local/state";
-    PATH = "$PATH:$HOME/Library/Python/3.11/bin:$HOME/.local/bin";
-    EDITOR = "${pkgs.vim}/bin/vim";
-    VISUAL = "${pkgs.vim}/bin/vim";
-    PAGER = "${pkgs.less}/bin/less";
-    LANG = "en_US.UTF-8";
-    LC_ALL = "en_US.UTF-8";
-  };
+    # List of packages to install
+    packages = with pkgs; [
+      customPython
+      nodejs_20
+      terraform
+      awscli2
+      awsume
+      ansible
+      docker
+      git
+      jq
+      ripgrep
+      htop
+      tree
+      tmux
+      fzf
+      direnv
+    ];
 
-  # Define shell aliases
-  shellAliases = {
-    ll = "ls -alF";
-    la = "ls -A";
-    l = "ls -CF";
-    update = "sudo nixos-rebuild switch";
-    myalias = "echo 'This is my custom alias'";
-    py = "python3";
-    ipy = "python3 -c 'import IPython; IPython.terminal.ipapp.launch_new_instance()'";
-    tf = "terraform";
-    dcu = "docker-compose up -d";
-    dcd = "docker-compose down";
-    k = "kubectl";
-  };
+    # Environment variables
+    env = {
+      AWS_CONFIGURE_SSO_DEFAULT_SSO_START_URL = "https://intelerad.awsapps.com/start";
+      AWS_CONFIGURE_SSO_DEFAULT_SSO_REGION = "us-east-1";
+      CONFIG_HOME = "/users/acarter";
+      AWS_SDK_LOAD_CONFIG = "1";
+      XDG_CONFIG_HOME = "$HOME/.config";
+      XDG_CACHE_HOME = "$HOME/.cache";
+      XDG_STATE_HOME = "$HOME/.local/state";
+      PATH = "$PATH:$HOME/Library/Python/3.11/bin:$HOME/.local/bin";
+      EDITOR = "${pkgs.vim}/bin/vim";
+      VISUAL = "${pkgs.vim}/bin/vim";
+      PAGER = "${pkgs.less}/bin/less";
+      LANG = "en_US.UTF-8";
+      LC_ALL = "en_US.UTF-8";
+    };
 
+    # Shell aliases
+    shellAliases = {
+      ll = "ls -alF";
+      la = "ls -A";
+      l = "ls -CF";
+      update = "sudo nixos-rebuild switch";
+      myalias = "echo 'This is my custom alias'";
+      py = "python3";
+      ipy = "python3 -c 'import IPython; IPython.terminal.ipapp.launch_new_instance()'";
+      tf = "terraform";
+      dcu = "docker-compose up -d";
+      dcd = "docker-compose down";
+      k = "kubectl";
+    };
   idx = {
     extensions = [
       { id = "ms-python.python"; uuid = "f1f59ae4-9318-4f3c-a9b5-81b2eaa5f8a5"; version = "2024.14.1"; }
@@ -95,101 +99,52 @@ in
       { id = "4ops.terraform"; uuid = "b861aa84-146f-440f-b6be-76124b02b729"; version = "0.2.5"; }
       { id = "pjmiravalle.terraform-advanced-syntax-highlighting"; uuid = "72964da7-16bd-4af1-93a4-511b2f582934"; version = "0.1.0"; }
     ];
-  };
+
+# Shell configuration
+
+# Removed duplicate `home.file.".bashrc".text` definition
+# (it was defined twice previously)
+
+# Git aliases
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gl='git log --oneline --graph --decorate'
+alias tfi="terraform init"
+alias tfa="terraform apply"
+alias tfp="terraform plan"
+alias tfc="terraform console"
+alias tfr="terraform refresh"
+
+# Custom functions
+function mkcd() {
+  mkdir -p "$1" && cd "$1"
 }
-    previews = {
-      enable = true;
-      previews = {
-        web = {
-          port = 3000;
-          command = ["npm" "start"];
-        };
-      };
-    };
 
-    internal.templates-cli.enable = true;
+function extract() {
+  if [ -f $1 ] ; then
+    case $1 in
+      *.tar.bz2)tar xjf $1;;
+      *.tar.gz)tar xzf $1;;
+      *.bz2)bunzip2 $1;;
+      *.rar)unrar e $1;;
+      *.gz)gunzip $1;;
+      *.tar)tar xf $1;;
+      *.tbz2)tar xjf $1;;
+      *.tgz)tar xzf $1;;
+      *.zip)unzip $1;;
+      *.Z)uncompress $1;;
+      *.7z)7z x $1;;
+      *)echo "'$1' cannot be extracted via extract()" ;;
+    esac
+  else
+    echo "'$1' is not a valid file"
+  fi
+}
 
-    services.docker = {
-      extensions = ["pgvector"];
-      enable = true;
-    };
-
-    workspace = {
-      onCreate = {
-        setup-env = "direnv allow";
-      };
-      onStart = {
-        check-updates = "nix-channel --update";
-      };
-    };
-  };
-
-  # Add a custom shell initialization script
-  home.file.".bashrc".text = ''
-    # Enable direnv
-    eval "$(direnv hook bash)"
-
-    # Git aliases
-    alias gs='git status'
-    alias ga='git add'
-    alias gc='git commit'
-    alias gp='git push'
-    alias gl='git log --oneline --graph --decorate'
-    alias tfi="terraform init"
-    alias tfa="terraform apply"
-    alias tfp="terraform plan"
-    alias tfc="terraform console"
-    alias tfr="terraform refresh"
-    # Custom functions
-    function mkcd() {
-      mkdir -p "$1" && cd "$1"
-    }
-
-    function extract() {
-      if [ -f $1 ] ; then
-        case $1 in
-          *.tar.bz2)   tar xjf $1     ;;
-          *.tar.gz)    tar xzf $1     ;;
-          *.bz2)       bunzip2 $1     ;;
-          *.rar)       unrar e $1     ;;
-          *.gz)        gunzip $1      ;;
-          *.tar)       tar xf $1      ;;
-          *.tbz2)      tar xjf $1     ;;
-          *.tgz)       tar xzf $1     ;;
-          *.zip)       unzip $1       ;;
-          *.Z)         uncompress $1  ;;
-          *.7z)        7z x $1        ;;
-          *)     echo "'$1' cannot be extracted via extract()" ;;
-        esac
-      else
-        echo "'$1' is not a valid file"
-      fi
-    }
-
-    # Improved prompt with git branch
+# Improved prompt with git branch
     parse_git_branch() {
       git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
     }
     export PS1="\u@\h \[\033[32m\]\w\[\033[33m\]\$(parse_git_branch)\[\033[00m\] $ "
-
-    # Any other custom shell configurations
-    echo "Welcome to your IDX environment!"
-  '';
-
-  # Add .gitconfig
-  home.file.".gitconfig".text = ''
-    [user]
-      name = Austin Carter
-      email = acarter@wakkalabs.com
-    [core]
-      editor = code
-    [color]
-      ui = auto
-    [alias]
-      st = status
-      ci = commit
-      co = checkout
-      br = branch
-      lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
-  '';
-}
