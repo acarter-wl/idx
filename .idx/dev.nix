@@ -11,8 +11,7 @@
       numpy
       matplotlib
     ]);
-  in
-  {
+ 
     packages = with pkgs; [
       customPython
       nodejs_20
@@ -30,7 +29,7 @@
       fzf
       direnv
     ];
-
+  };
     env = {
       AWS_CONFIGURE_SSO_DEFAULT_SSO_START_URL = "https://intelerad.awsapps.com/start";
       AWS_CONFIGURE_SSO_DEFAULT_SSO_REGION = "us-east-1";
@@ -82,7 +81,7 @@
       { id = "pjmiravalle.terraform-advanced-syntax-highlighting"; uuid = "72964da7-16bd-4af1-93a4-511b2f582934"; version = "0.1.0"; }
         # ... your other extensions ...
       ];
-    };
+
 
     # Shell configuration within home.file.".bashrc".text
     home.file.".bashrc".text = ''
@@ -100,5 +99,5 @@
       alias k='kubectl'
       # ... your other aliases and functions ...
     '';
-  } # Closing curly brace for the main scope 
-}
+ # Closing curly brace for the main scope 
+    }
