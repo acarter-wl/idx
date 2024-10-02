@@ -1,4 +1,4 @@
- pkgs ? import <nixpkgs> {} }:
+ pkgs ? import <nixpkgs> {}; {
 
 let
   customPython = pkgs.python311.withPackages (ps: with ps; [
