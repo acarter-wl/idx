@@ -3,52 +3,51 @@
 {
   channel = "nixos-24.11";
 
-  # Define customPython within the main scope
-  let
-    customPython = pkgs.python311.withPackages (ps: with ps; [
-      requests
-      pandas
-      numpy
-      matplotlib
-    ]);
+  customPython = pkgs.python311.withPackages (ps: with ps; [
+    requests
+    pandas
+    numpy
+    matplotlib
+  ]);
  
-    packages = with pkgs; [
-      customPython
-      nodejs_20
-      terraform
-      awscli2
-      awsume
-      ansible
-      docker
-      git
-      jq
-      ripgrep
-      htop
-      tree
-      tmux
-      fzf
-      direnv
-    ];
-  };
-    env = {
-      AWS_CONFIGURE_SSO_DEFAULT_SSO_START_URL = "https://intelerad.awsapps.com/start";
-      AWS_CONFIGURE_SSO_DEFAULT_SSO_REGION = "us-east-1";
-      CONFIG_HOME = "$HOME/.config";  # Use $HOME for consistency
-      AWS_SDK_LOAD_CONFIG = "1";
-      XDG_CONFIG_HOME = "$HOME/.config";
-      XDG_CACHE_HOME = "$HOME/.cache";
-      XDG_STATE_HOME = "$HOME/.local/state";
-      PATH = "$PATH:$HOME/Library/Python/3.11/bin:$HOME/.local/bin";
-      EDITOR = "${pkgs.vim}/bin/vim";
-      VISUAL = "${pkgs.vim}/bin/vim";
-      PAGER = "${pkgs.less}/bin/less";
-      LANG = "en_US.UTF-8";
-      LC_ALL = "en_US.UTF-8";
-    };
+  packages = with pkgs; [
+    customPython
+    nodejs_20
+    terraform
+    awscli2
+    awsume
+    ansible
+    docker
+    git
+    jq
+    ripgrep
+    htop
+    tree
+    tmux
+    fzf
+    direnv
+  ];
 
-    idx = {
-      extensions = [
-           { id = "ms-python.python"; uuid = "f1f59ae4-9318-4f3c-a9b5-81b2eaa5f8a5"; version = "2024.14.1"; }
+  env = {
+    HOME = "/home/user/idx";
+    AWS_CONFIGURE_SSO_DEFAULT_SSO_START_URL = "https://intelerad.awsapps.com/start";
+    AWS_CONFIGURE_SSO_DEFAULT_SSO_REGION = "us-east-1";
+    CONFIG_HOME = "$HOME/.config";
+    AWS_SDK_LOAD_CONFIG = "1";
+    XDG_CONFIG_HOME = "$HOME/.config";
+    XDG_CACHE_HOME = "$HOME/.cache";
+    XDG_STATE_HOME = "$HOME/.local/state";
+    PATH = "$PATH:$HOME/Library/Python/3.11/bin:$HOME/.local/bin";
+    EDITOR = "${pkgs.vim}/bin/vim";
+    VISUAL = "${pkgs.vim}/bin/vim";
+    PAGER = "${pkgs.less}/bin/less";
+    LANG = "en_US.UTF-8";
+    LC_ALL = "en_US.UTF-8";
+  };
+
+  idx = {
+    extensions = [
+      { id = "ms-python.python"; uuid = "f1f59ae4-9318-4f3c-a9b5-81b2eaa5f8a5"; version = "2024.14.1"; }
       { id = "hashicorp.terraform"; uuid = "d7e26c29-facd-4884-b1d7-bd06b57e2a5b"; version = "2.30.0"; }
       { id = "ms-azuretools.vscode-docker"; uuid = "0479fc1c-3d88-4636-b43c-258b2fb69211"; version = "1.29.0"; }
       { id = "ms-kubernetes-tools.vscode-kubernetes-tools"; uuid = "4837e4f3-1b01-4732-b1a6-daa57ef64cab"; version = "1.3.16"; }
@@ -79,11 +78,8 @@
       { id = "gruntfuggly.todo-tree"; uuid = "261cac81-cd7b-4555-bb41-0c2d2bcd3e70"; version = "0.0.226"; }
       { id = "4ops.terraform"; uuid = "b861aa84-146f-440f-b6be-76124b02b729"; version = "0.2.5"; }
       { id = "pjmiravalle.terraform-advanced-syntax-highlighting"; uuid = "72964da7-16bd-4af1-93a4-511b2f582934"; version = "0.1.0"; }
-        # ... your other extensions ...
-      ];
+    ];
 
-
-    # Shell configuration within home.file.".bashrc".text
     home.file.".bashrc".text = ''
       # Shell aliases
       alias ll='ls -alF'
@@ -97,7 +93,6 @@
       alias dcu='docker-compose up -d'
       alias dcd='docker-compose down'
       alias k='kubectl'
-      # ... your other aliases and functions ...
     '';
- # Closing curly brace for the main scope 
-    }
+  };
+}
