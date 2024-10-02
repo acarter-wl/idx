@@ -2,16 +2,8 @@
 
 {
   channel = "nixos-24.11";
-
-  customPython = pkgs.python311.withPackages (ps: with ps; [
-    requests
-    pandas
-    numpy
-    matplotlib
-  ]);
  
   packages = with pkgs; [
-    customPython
     nodejs_20
     terraform
     awscli2
