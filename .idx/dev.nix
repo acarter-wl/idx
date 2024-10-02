@@ -1,16 +1,6 @@
 { pkgs ? import <nixpkgs> {} }:
 
 {
-  # Custom Python environment with required packages
-  let
-    customPython = pkgs.python311.withPackages (ps: with ps; [
-      requests
-      pandas
-      numpy
-      matplotlib
-    ]);
-  in
-  {
     channel = "nixos-24.11";
 
     # List of packages to install
@@ -111,7 +101,31 @@
       alias tfp="terraform plan"
       alias tfc="terraform console"
       alias tfr="terraform refresh"
+  
 
+    cloud_shell_environment = {
+    # Define the default container image (optional)
+    # default_image = "ubuntu:20.04";
+
+    # Use 'let ... in' to define customPython within this scope
+    let
+      customPython = pkgs.python311.withPackages (ps: with ps; [
+        requests
+        pandas
+        numpy
+        matplotlib
+      ]);
+    in { 
+      # Packages to install in Cloud Shell
+      packages = with pkgs; [
+        customPython  # Now accessible within this scope
+        nodejs_20
+        terraform
+        # ... rest of your Cloud Shell packages ...
+      ]; 
+    }
+  };
+}
       # Custom functions
       function mkcd() {
         mkdir -p "$1" && cd "$1"
